@@ -230,7 +230,7 @@ function hde.disasm(code)
 
   if (c & 0xf0) == 0x40 then
     hs.flags = hs.flags | defines.F_PREFIX_REX
-    hs.rex_w = (c & 0xf0) >> 3
+    hs.rex_w = (c & 0xf) >> 3
     if (hs.rex_w ~= 0 and (p[pc] & 0xf8) == 0xb8) then
       op64 = op64 + 1;
     end
@@ -317,13 +317,13 @@ function hde.disasm(code)
       end
 
       if (t & 0x80) ~= 0 then
-        hs.flags = hs.flags | F_ERROR | F_ERROR_OPCODE
+        hs.flags = hs.flags | defines.F_ERROR | defines.F_ERROR_OPCODE
       end
     end
 
     if (pref & defines.PRE_LOCK) ~= 0 then
       if m_mod == 3 then
-        hs.flags = hs.flags | F_ERROR | F_ERROR_LOCK
+        hs.flags = hs.flags | defines.F_ERROR | defines.F_ERROR_LOCK
       else
         local op = opcode
         local table_end
@@ -453,12 +453,12 @@ function hde.disasm(code)
       disp_size = 1
     elseif m_mod == 2 then
       disp_size = 2
-      if (pref & defines.PRE_67) ~= 0 then
+      if (pref & defines.PRE_67) == 0 then
         disp_size = disp_size << 1
       end
     end
 
-    if m_mod ~= 3 and m_rm == 4 then
+    if m_mod ~= 3 and m_rm == 4 and c ~= nil then
       hs.flags = hs.flags | defines.F_SIB
       pc = pc + 1
       hs.sib = c
@@ -548,7 +548,7 @@ function hde.disasm(code)
   ::disasm_done::
   hs.len = pc
   if hs.len > 15 then
-    hs.flags = hs.flags | F_ERROR | F_ERROR_LENGTH
+    hs.flags = hs.flags | defines.F_ERROR | defines.F_ERROR_LENGTH
     hs.len = 15
   end
 
